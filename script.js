@@ -181,30 +181,56 @@ function renderProjects() {
     container.innerHTML = projects.map(project => `
         <div class="project">
             <div class="project-header">
-                <div class="project-name">${escapeHtml(project.name)}</div>
+                <div class="project-title-section">
+                    <button class="collapse-btn" onclick="toggleProject(${project.id})">
+                        <span class="arrow" id="arrow-${project.id}">▼</span>
+                    </button>
+                    <div class="project-name">${escapeHtml(project.name)}</div>
+                </div>
                 <div class="project-controls">
                     <button class="add-task-btn" onclick="openTaskModal(${project.id})">+ ADD TASK</button>
                     <button class="delete-project-btn" onclick="deleteProject(${project.id})">DELETE</button>
                 </div>
             </div>
-            <div class="kanban-board">
+            <div class="kanban-board" id="board-${project.id}">
                 <div class="kanban-column todo-column" 
                      ondragover="handleDragOver(event)" 
                      ondrop="handleDrop(event, ${project.id}, 'todo')">
-                    <div class="column-header">To Do (${project.tasks.todo.length})</div>
-                    ${renderTasks(project.id, 'todo', project.tasks.todo)}
+                    <div class="column-header-wrapper">
+                        <button class="column-collapse-btn" onclick="toggleColumn(${project.id}, 'todo')">
+                            <span class="arrow" id="arrow-${project.id}-todo">▼</span>
+                        </button>
+                        <div class="column-header">To Do (${project.tasks.todo.length})</div>
+                    </div>
+                    <div class="column-tasks" id="tasks-${project.id}-todo">
+                        ${renderTasks(project.id, 'todo', project.tasks.todo)}
+                    </div>
                 </div>
                 <div class="kanban-column progress-column" 
                      ondragover="handleDragOver(event)" 
                      ondrop="handleDrop(event, ${project.id}, 'progress')">
-                    <div class="column-header">In Progress (${project.tasks.progress.length})</div>
-                    ${renderTasks(project.id, 'progress', project.tasks.progress)}
+                    <div class="column-header-wrapper">
+                        <button class="column-collapse-btn" onclick="toggleColumn(${project.id}, 'progress')">
+                            <span class="arrow" id="arrow-${project.id}-progress">▼</span>
+                        </button>
+                        <div class="column-header">In Progress (${project.tasks.progress.length})</div>
+                    </div>
+                    <div class="column-tasks" id="tasks-${project.id}-progress">
+                        ${renderTasks(project.id, 'progress', project.tasks.progress)}
+                    </div>
                 </div>
                 <div class="kanban-column done-column" 
                      ondragover="handleDragOver(event)" 
                      ondrop="handleDrop(event, ${project.id}, 'done')">
-                    <div class="column-header">Done (${project.tasks.done.length})</div>
-                    ${renderTasks(project.id, 'done', project.tasks.done)}
+                    <div class="column-header-wrapper">
+                        <button class="column-collapse-btn" onclick="toggleColumn(${project.id}, 'done')">
+                            <span class="arrow" id="arrow-${project.id}-done">▼</span>
+                        </button>
+                        <div class="column-header">Done (${project.tasks.done.length})</div>
+                    </div>
+                    <div class="column-tasks" id="tasks-${project.id}-done">
+                        ${renderTasks(project.id, 'done', project.tasks.done)}
+                    </div>
                 </div>
             </div>
         </div>
@@ -260,6 +286,34 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Toggle project visibility
+function toggleProject(projectId) {
+    const board = document.getElementById(`board-${projectId}`);
+    const arrow = document.getElementById(`arrow-${projectId}`);
+    
+    if (board.style.display === 'none') {
+        board.style.display = 'grid';
+        arrow.textContent = '▼';
+    } else {
+        board.style.display = 'none';
+        arrow.textContent = '▶';
+    }
+}
+
+// Toggle column visibility
+function toggleColumn(projectId, status) {
+    const tasks = document.getElementById(`tasks-${projectId}-${status}`);
+    const arrow = document.getElementById(`arrow-${projectId}-${status}`);
+    
+    if (tasks.style.display === 'none') {
+        tasks.style.display = 'block';
+        arrow.textContent = '▼';
+    } else {
+        tasks.style.display = 'none';
+        arrow.textContent = '▶';
+    }
 }
 
 // Initialize on page load
